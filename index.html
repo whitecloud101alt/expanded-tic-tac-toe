@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Expanded Tic Tac Toe: grow the board or place your mark, and race to four in a row."
+    />
+    <title>Expanded Tic Tac Toe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Expanded Tic Tac Toe home">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span>EXPANDED TIC TAC TOE</span>
+        </a>
+        <button class="icon-button" id="rulesButton" type="button" aria-label="How to play">
+          ?
+        </button>
+      </header>
+
+      <section class="game-layout">
+        <aside class="game-panel">
+          <div class="panel-heading-row">
+            <div class="eyebrow">Expanded tic-tac-toe</div>
+            <button class="game-type-button" id="gameTypeButton" type="button">
+              <span id="gameTypeLabel">Original</span>
+              <span aria-hidden="true">⌄</span>
+            </button>
+          </div>
+          <h1>Grow the grid.<br /><span>Claim the line.</span></h1>
+          <p class="intro" id="gameDescription">
+            Each turn, place your mark or expand the board by four connected squares.
+            First to make four in a row wins.
+          </p>
+
+          <div class="players" aria-label="Players">
+            <div class="player-card active" id="playerX">
+              <span class="player-token x-token">X</span>
+              <span>
+                <strong>Player 1</strong>
+                <small class="player-stats hidden" id="playerXStats">
+                  <span class="score-stat"><b id="scoreX">0</b> points · </span>
+                  <span class="blocker-stat">◆ <b id="blockersX">1</b></span>
+                </small>
+              </span>
+              <i class="turn-dot"></i>
+            </div>
+            <div class="player-card" id="playerO">
+              <span class="player-token o-token">O</span>
+              <span>
+                <strong>Player 2</strong>
+                <small class="player-stats hidden" id="playerOStats">
+                  <span class="score-stat"><b id="scoreO">0</b> points · </span>
+                  <span class="blocker-stat">◆ <b id="blockersO">1</b></span>
+                </small>
+              </span>
+              <i class="turn-dot"></i>
+            </div>
+          </div>
+
+          <div class="turn-card">
+            <div>
+              <span class="turn-label">Current turn</span>
+              <strong id="turnTitle">Player 1 · X</strong>
+              <p id="turnHint">Choose an action below.</p>
+            </div>
+            <span class="large-turn-token x-token" id="turnToken">X</span>
+          </div>
+
+          <div class="actions" id="actions">
+            <button class="action-button active" id="markMode" type="button">
+              <span class="action-icon mark-action">X</span>
+              <span>
+                <strong>Place your mark</strong>
+                <small>Choose any empty square</small>
+              </span>
+            </button>
+            <button class="action-button" id="expandMode" type="button">
+              <span class="action-icon grid-action" aria-hidden="true">
+                <i></i><i></i><i></i><i></i>
+              </span>
+              <span>
+                <strong>Expand the grid</strong>
+                <small id="expandActionHint">Add four connected squares</small>
+              </span>
+            </button>
+            <button class="action-button" id="blockerMode" type="button">
+              <span class="action-icon block-action" aria-hidden="true">
+                <i></i><b></b>
+              </span>
+              <span>
+                <strong>Place a blocker</strong>
+                <small id="blockerActionHint">Block one existing or connected square</small>
+              </span>
+            </button>
+          </div>
+
+          <div class="expand-controls hidden" id="expandControls">
+            <div class="selection-progress">
+              <span id="selectionText">0 of 4 selected</span>
+              <div class="progress-dots" id="progressDots">
+                <i></i><i></i><i></i><i></i>
+              </div>
+            </div>
+            <div class="control-row">
+              <button class="text-button" id="cancelExpand" type="button">Cancel</button>
+              <button class="confirm-button" id="confirmExpand" type="button" disabled>
+                Confirm expansion
+              </button>
+            </div>
+          </div>
+
+          <div class="expand-controls hidden" id="blockerControls">
+            <div class="selection-progress">
+              <span id="blockerSelectionText">Choose one blocker</span>
+              <div class="progress-dots" id="blockerProgressDots">
+                <i class="block-dot"></i>
+              </div>
+            </div>
+            <div class="control-row">
+              <button class="text-button" id="cancelBlocker" type="button">Cancel</button>
+              <button class="confirm-button" id="confirmBlocker" type="button" disabled>
+                Place blocker
+              </button>
+            </div>
+          </div>
+
+          <button class="new-game-button" id="newGameButton" type="button">
+            <span>↻</span> New game
+          </button>
+          <div class="session-actions">
+            <button id="onlineButton" type="button"><span>◎</span> Play online</button>
+            <button id="exportButton" type="button"><span>⇩</span> Export</button>
+            <button id="importButton" type="button"><span>⇧</span> Import</button>
+            <input id="importFileInput" type="file" accept="application/json,.json" hidden />
+          </div>
+        </aside>
+
+        <section class="board-section">
+          <div class="room-banner hidden" id="roomBanner">
+            <div>
+              <span class="connection-dot" id="connectionDot"></span>
+              <span id="roomStatus">Connecting…</span>
+            </div>
+            <div class="room-code-wrap">
+              <span>Room</span>
+              <strong id="roomCodeDisplay">—</strong>
+              <button id="copyRoomButton" type="button">Copy</button>
+              <button id="leaveRoomButton" type="button">Leave</button>
+            </div>
+          </div>
+          <div class="board-meta">
+            <div>
+              <span class="status-pulse"></span>
+              <span id="boardStatus">Player 1 is choosing a move</span>
+            </div>
+            <span id="squareCount">9 squares</span>
+          </div>
+
+          <div class="board-viewport" id="boardViewport">
+            <div class="board-tools" aria-label="Board controls">
+              <div class="tool-group">
+                <button id="undoButton" type="button" aria-label="Move back" title="Move back">
+                  <span aria-hidden="true">↶</span>
+                </button>
+                <button id="redoButton" type="button" aria-label="Move forward" title="Move forward">
+                  <span aria-hidden="true">↷</span>
+                </button>
+              </div>
+              <div class="tool-group zoom-tools">
+                <button id="zoomOutButton" type="button" aria-label="Zoom out" title="Zoom out">
+                  <span aria-hidden="true">−</span>
+                </button>
+                <button id="resetViewButton" class="zoom-level" type="button" title="Reset view">
+                  100%
+                </button>
+                <button id="zoomInButton" type="button" aria-label="Zoom in" title="Zoom in">
+                  <span aria-hidden="true">+</span>
+                </button>
+              </div>
+            </div>
+            <div class="board" id="board" role="grid" aria-label="Game board"></div>
+          </div>
+
+          <div class="board-legend">
+            <span><i class="legend-cell available"></i> Available square</span>
+            <span id="expandLegend" class="hidden">
+              <i class="legend-cell addable">+</i> Addable square
+            </span>
+            <span id="blockLegend" class="hidden">
+              <i class="legend-cell blocker-legend">◆</i> Blocker
+            </span>
+            <span class="drag-tip">Two-finger scroll to move · Pinch to zoom</span>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog class="modal" id="rulesModal">
+      <div class="modal-card">
+        <button class="modal-close" id="closeRules" type="button" aria-label="Close">×</button>
+        <span class="modal-kicker">The rules</span>
+        <h2>Make space. Make your move.</h2>
+        <ol>
+          <li>
+            <span>01</span>
+            <p>Start with a classic empty <strong>3 × 3 grid</strong>.</p>
+          </li>
+          <li>
+            <span>02</span>
+            <p>On your turn, either <strong>place your mark</strong> or expand the board.</p>
+          </li>
+          <li>
+            <span>03</span>
+            <p>
+              An expansion adds <strong id="rulesExpansionCount">exactly four empty squares</strong>. Each must touch
+              the board or another new square by an edge or corner.
+            </p>
+          </li>
+          <li id="blockerRule">
+            <span>04</span>
+            <p>
+              Or place <strong id="rulesBlockerText">one blocker</strong> on an empty square or in a new square
+              touching the current board. This move adds no regular squares.
+            </p>
+          </li>
+          <li>
+            <span id="rulesGoalNumber">05</span>
+            <p id="rulesGoal">The first player with <strong>four marks in a row</strong> in any direction wins.</p>
+          </li>
+        </ol>
+        <button class="modal-primary" id="gotItButton" type="button">Got it — let’s play</button>
+      </div>
+    </dialog>
+
+    <dialog class="modal result-modal" id="resultModal">
+      <div class="modal-card result-card">
+        <div class="winner-burst">
+          <span id="winnerToken">X</span>
+        </div>
+        <span class="modal-kicker">Game over</span>
+        <h2 id="winnerTitle">Player 1 wins!</h2>
+        <p id="winnerMessage">Four in a row. Nicely played.</p>
+        <button class="modal-primary" id="playAgainButton" type="button">Play again</button>
+      </div>
+    </dialog>
+
+    <dialog class="modal setup-modal" id="setupModal">
+      <form class="modal-card setup-card" id="setupForm" method="dialog">
+        <button class="modal-close" id="closeSetup" type="button" aria-label="Close">×</button>
+        <span class="modal-kicker">New game</span>
+        <h2>Build your game.</h2>
+
+        <div class="preset-section">
+          <span class="settings-label">Presets</span>
+          <div class="preset-options" id="presetOptions">
+            <button class="preset-button active" type="button" data-preset="original">
+              <strong>Original</strong>
+              <small>Classic four in a row</small>
+            </button>
+            <button class="preset-button" type="button" data-preset="five">
+              <strong>Five in a row</strong>
+              <small>No blockers</small>
+            </button>
+            <button class="preset-button" type="button" data-preset="twenty">
+              <strong>First to 20</strong>
+              <small>Earn blockers while scoring</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="game-settings" id="gameSettings">
+          <label>
+            <span>Points needed to win</span>
+            <input id="targetScoreInput" type="number" min="1" max="999" value="1" />
+          </label>
+          <label>
+            <span>Target line length</span>
+            <input id="lineLengthInput" type="number" min="3" max="50" value="4" />
+          </label>
+          <label>
+            <span>Squares per expansion</span>
+            <input id="expansionSizeInput" type="number" min="1" max="50" value="4" />
+          </label>
+          <label>
+            <span>How lines score</span>
+            <select id="scoringMethodInput">
+              <option value="lines">1 point per completed line</option>
+              <option value="tokens">1 point per qualifying token</option>
+            </select>
+          </label>
+          <label class="checkbox-setting">
+            <span>
+              <strong>Allow blockers</strong>
+              <small>Players may spend a turn placing a blocker.</small>
+            </span>
+            <input id="blockersEnabledInput" type="checkbox" checked />
+            <i aria-hidden="true"></i>
+          </label>
+          <label class="blocker-count-setting">
+            <span>Player 1 starting blockers</span>
+            <input id="startingBlockersXInput" type="number" min="-1" max="999" value="-1" />
+          </label>
+          <label class="blocker-count-setting">
+            <span>Player 2 starting blockers</span>
+            <input id="startingBlockersOInput" type="number" min="-1" max="999" value="-1" />
+          </label>
+          <div class="inventory-note blocker-count-setting">
+            Enter <strong>−1</strong> for unlimited blockers.
+          </div>
+          <div class="award-setting blocker-count-setting">
+            <span>Opponent receives</span>
+            <input id="blockersAwardedInput" type="number" min="0" max="99" value="1" aria-label="Blockers awarded" />
+            <span>blocker(s) every</span>
+            <input id="pointsPerAwardInput" type="number" min="1" max="999" value="1" aria-label="Points per blocker award" />
+            <span>point(s)</span>
+          </div>
+        </div>
+
+        <button class="modal-primary" type="submit">Start game</button>
+      </form>
+    </dialog>
+
+    <dialog class="modal online-modal" id="onlineModal">
+      <div class="modal-card online-card">
+        <button class="modal-close" id="closeOnline" type="button" aria-label="Close">×</button>
+        <span class="modal-kicker">Online multiplayer</span>
+        <h2>Share a board.</h2>
+        <p>Create a private room from the current game, or enter a friend’s room code.</p>
+        <button class="online-create" id="createRoomButton" type="button">
+          <span>＋</span>
+          <span><strong>Create room</strong><small>You’ll play as Player 1 · X</small></span>
+        </button>
+        <div class="join-divider"><span>or join a room</span></div>
+        <form class="join-form" id="joinRoomForm">
+          <input id="roomCodeInput" type="text" maxlength="7" autocomplete="off" placeholder="ROOM CODE" aria-label="Room code" />
+          <button type="submit">Join</button>
+        </form>
+        <p class="online-message" id="onlineMessage" role="status"></p>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
